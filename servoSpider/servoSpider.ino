@@ -13,45 +13,59 @@ Servo servo9;
 Servo servo10;
 Servo servo11;
 Servo servo12;
-Servo servos[12]={servo1, servo2,servo3,servo4,servo5,servo6,servo7,servo8,servo9,servo10,servo11,servo12};
-int command =90 ;
+Servo servos[4][3]={{servo1,servo2,servo3},{servo4,servo5,servo6},{servo7,servo8,servo9},{servo10,servo11,servo12}};
+int leg_num = 90;
+int servo_num = 90;
+int servo_angle = 90;
 void setup() {
+  int servo_num = 0;
   Serial.begin(115200);
-  for (int i = 0; i < 12; i++){ 
-  servos[i].attach(servo_pins [i]);
+  for (int i = 0; i < 4; i++){
+    for (int j = 0; i < 3; i++){
+        servos[i][j].attach(servo_pins [servo_num]);
+        servo_num++;
+    }
   }
   Serial.println(" ||  ||");
   Serial.println(" \\()//");
   Serial.println("//(__)\\");
   Serial.println("||    ||");
+  Serial.println("Enter leg number (0-3) :"); 
 }
 
-void loop() {
-
-  for (int i = 0; i < 12; i++)
-  {
-    
-    servos[i].write(command);
-    Serial.println("servo :" + (String) i + "=" + (String) command);
-    if (Serial.available())
-    {
-      //command = Serial.readString();
-      command = Serial.parseInt();
-      digitalWrite((int)command,HIGH);
+void loop() {    
+    manual_serov_test();
+}
+void manual_serov_test()
+{
+    if (Serial.available() && state == 0){
+      leg_num = Serial.parseInt();
+      Serial.println("ok");
+      Serial.println(leg_num);
+      Serial.flush();
+      Serial.println("servo number (0-2) :") ;
+      state++;
     }
-    delay(1000);
-
-    
-    /*
-    servos[i].write(0);
-    Serial.println("servo :" + (String)i + "=" + "0");
-    delay(100);
-    servos[i].write(90);
-    Serial.println("servo :" + (String)i + "=" + "90");
-    delay(100);
-    servos[i].write(45);
-    Serial.println("servo :" + (String)i + "=" + "45");
-    delay(100);
-    */
-  }
+    if (Serial.available() && state == 1){
+      
+      servo_num = Serial.parseInt();
+      Serial.println("ok");
+      Serial.println(servo_num);
+      Serial.flush();
+      Serial.println("degre (0-180) :");
+      state++;
+    }
+    if (Serial.available() && state == 2){
+      servo_angle = Serial.parseInt();
+      Serial.println(servo_angle);
+      Serial.println("ok");
+      Serial.flush();
+      Serial.println("Enter leg number (0-3) :"); 
+      state++;
+    }
+    if (state == 3){
+      servos[leg_num][servo_num].write(servo_angle);
+      Serial.println("leg:" + (String) leg_num + "servo :" + (String) servo_num + "=" + (String) servo_angle);
+      state = 0;
+    }
 }
