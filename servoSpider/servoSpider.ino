@@ -21,7 +21,7 @@ void setup() {
   int servo_num = 0;
   Serial.begin(115200);
   for (int i = 0; i < 4; i++){
-    for (int j = 0; i < 3; i++){
+    for (int j = 0; j < 3; j++){
         servos[i][j].attach(servo_pins [servo_num]);
         servo_num++;
     }
@@ -47,7 +47,6 @@ void manual_serov_test()
       state++;
     }
     if (Serial.available() && state == 1){
-      
       servo_num = Serial.parseInt();
       Serial.println("ok");
       Serial.println(servo_num);
