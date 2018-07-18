@@ -8,42 +8,48 @@ class ServoControl:
     def __init__(self, root):
         root.title('servo spider')
         self.port_select = tk.StringVar(root)
-        self.speed_slect = tk.StringVar(root)
+        self.baud_slect = tk.StringVar(root)
         self.port_select.set("válassz")
-        self.speed_slect.set("válassz")
+        self.baud_slect.set("válassz")
         tk.Label(root,text="leg =").grid(row=1, column=2)
         tk.Label(root, text="servo = ").grid(row=2, column=2)
         tk.Label(root, text="angle = ").grid(row=3, column=2)
-        tk.Label(root, text="serial = ").grid(row=4, column=2)
+        tk.Label(root, text="speed = ").grid(row=4, column=2)
         self.leg_e = tk.Entry(root)
         self.servo_e = tk.Entry(root)
         self.angle_e = tk.Entry(root)
-        self.manula_e = tk.Entry(root)
+        self.speed_e = tk.Entry(root)
         self.leg_e.grid(row=1, column=3)
         self.servo_e.grid(row=2, column=3)
         self.angle_e.grid(row=3, column=3)
-        self.manula_e.grid(row=4, column=3)
+        self.speed_e.grid(row=4, column=3)
         self.leg_e.insert(0,"0")
         self.servo_e.insert(0, "0")
         self.angle_e.insert(0, "0")
-        self.manula_e.insert(0, "0")
+        self.speed_e.insert(0, "0")
         tk.Button(root, text="connect", width=10, command=lambda: my_connection.init_connection(self.port_select.get(), int(self.speed_slect.get()))).grid(row=1, column=4)
         tk.Button(root, text="disconnect", width=10, command=lambda: my_connection.list_ports()).grid(row=2, column=4)
         tk.Button(root, text="move leg", width=10, command=lambda: my_control.execute()).grid(row=3, column=4)
-        tk.Button(root, text="send", width=10, command=lambda: my_connection.send()).grid(row=4, column=4)
-        tk.Button(root, text="get pos", width=10, command=lambda: my_control.Get_pos(self.leg_e.get(), self.servo_e.get())).grid(row=5,column=4)
+        tk.Button(root, text="get pos", width=10, command=lambda: my_control.Get_pos(self.leg_e.get(), self.servo_e.get())).grid(row=4,column=4)
         tk.OptionMenu(root, self.port_select, *my_connection.list_ports()).grid(row=1, column=1)
-        tk.OptionMenu(root, self.speed_slect, *self.speeds).grid(row=2, column=1)
+        tk.OptionMenu(root, self.baud_slect, *self.speeds).grid(row=2, column=1)
         self.leg_e.focus_set()
 
 class Control:
 
+
+     #servole : xxxx0000
+
     def execute(self):
+
+
+        speed = int("{0:#b".format(int(my_gui.speed_e.get())),2) << 6
         leg = int("{0:#b}".format(int(my_gui.leg_e.get())), 2)
         servo = int("{0:#b}".format(int(my_gui.servo_e.get())), 2) << 2
         angle = int("{0:#b}".format(round(int(my_gui.angle_e.get())/10)), 2) << 4
         command = bytearray(1)
-        command[0] = leg | servo | angle
+        command[0] = leg | servo | speed
+        command[1] = leg | servo | angle
         my_connection.send_bytes(command)
 
     def move_leg(self,leg, servo, angle):
